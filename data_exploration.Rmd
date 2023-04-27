@@ -1,0 +1,99 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Video game sales project: data exploration
+
+```{r}
+library(tidyverse)
+library(janitor)
+
+all_sales <- read_csv("data/sales-2019.csv") %>% 
+  clean_names()
+
+ps4_sales <- read_csv("data/ps4-game-sales.csv") %>% 
+  clean_names()
+
+xbox_sales <- read_csv("data/xbox-one-game-sales.csv") %>% 
+  clean_names()
+
+nin_sales <- read_csv("data/nintendo_sales.csv") %>% 
+  clean_names()
+
+extra_sales <- read_csv("data/extra_videogame_sales.csv") %>% 
+  clean_names()
+
+all_sales
+```
+
+```{r}
+all_sales %>% 
+  skimr::skim()
+```
+
+```{r}
+ps4_sales
+```
+
+```{r}
+skimr::skim(ps4_sales)
+```
+
+```{r}
+xbox_sales
+```
+
+```{r}
+skimr::skim(xbox_sales)
+```
+
+```{r}
+skimr::skim(extra_sales)
+```
+
+```{r}
+total_user_score_extra <- 16719 - 6704
+total_critic_score_extra <- 16719 - 8582
+total_user_score_all <- 55792 - 55497
+total_critic_score_all <- 55792 - 49296
+
+total_critic_score_all
+total_critic_score_extra
+```
+extra sales has more critic scores
+
+```{r}
+total_user_score_all
+total_user_score_extra
+```
+extra sales has more user scores
+
+```{r}
+extra_sales
+```
+
+```{r}
+all_sales %>% 
+  filter(name == "Minecraft")
+```
+
+### extra_sales may be more useful than our original dataset (all_sales)
+
+
+```{r}
+skimr::skim(all_sales)
+skimr::skim(extra_sales)
+```
+
+sales columns: extra
+critic score: extra
+user score: extra
+
+our measurements of success for a game have more values in the extra sales data, all sales may have more of other values but these are meaningless if we don't have a measurement for how successful the game is. Therefore extra_sales will be more useful.
+
+```{r}
+GGally::ggcorr(extra_sales)
+```
+
+the correlation between sales and critic score is weak, therefore we will keep both in as metrics of success instead of using just one.
