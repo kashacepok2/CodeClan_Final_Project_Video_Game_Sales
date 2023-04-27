@@ -1,0 +1,116 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(reticulate)
+```
+
+```{python}
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+
+vg_ratings = pd.read_csv("vg_ratings.csv")
+vg_sales = pd.read_csv("vg_sales.csv")
+```
+
+```{python}
+plt.rcParams["figure.figsize"] = [5,3]
+plt.rcParams["figure.dpi"] = 120
+plt.rcParams["font.size"] = 10
+
+sales_by_platform = (
+  vg_sales
+  .loc[vg_sales["platform"].isin(["Nintendo", "Microsoft Xbox", "Sony Playstation", "PC"])]
+  .groupby("platform")
+  .agg({"global_sales":"mean"})
+)
+
+plt.figure(1)
+sns.barplot(data = sales_by_platform, x = sales_by_platform.index, y = "global_sales")
+plt.legend().remove()
+
+```
+
+```{python}
+plt.close()
+
+scores_by_platform = (
+  vg_ratings
+  .loc[vg_ratings["platform"].isin(["Nintendo", "Microsoft Xbox", "Sony Playstation", "PC"])]
+)
+
+plt.figure(2)
+sns.barplot(data = scores_by_platform, x = "platform", y = "score", hue = "critic_or_user")
+
+plt.show()
+```
+
+```{python}
+plt.close()
+
+sales_by_genre = (
+  vg_sales
+  .groupby("genre")
+  .agg({"global_sales":"mean"})
+)
+
+plt.figure(3)
+sns.barplot(data = sales_by_genre, x = sales_by_genre.index, y = "global_sales")
+plt.legend().remove()
+
+plt.show()
+```
+
+```{python}
+plt.close()
+
+scores_by_genre = (
+  vg_ratings
+  .loc[vg_ratings["platform"].isin(["Nintendo", "Microsoft Xbox", "Sony Playstation", "PC"])]
+)
+
+plt.figure(4)
+sns.barplot(data = scores_by_genre, x = "genre", y = "score", hue = "critic_or_user")
+
+plt.show()
+```
+
+```{python}
+plt.close()
+
+sales_by_maturity = (
+  vg_sales
+  .groupby("rating")
+  .agg({"global_sales":"mean"})
+)
+
+plt.figure(5)
+sns.barplot(data = sales_by_maturity, x = sales_by_maturity.index, y = "global_sales")
+plt.legend().remove()
+
+plt.show()
+```
+
+```{python}
+plt.close()
+
+sales_genre_year = (
+  vg_sales
+  .groupby(["year_of_release", "genre"])
+  .agg({"global_sales":"mean"})
+)
+
+plt.figure(6)
+sns.lineplot(data = sales_genre_year, x = "year_of_release", y = "global_sales", hue = "genre")
+
+plt.show()
+```
+
+```{python}
+
+```
+
