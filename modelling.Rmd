@@ -1,0 +1,67 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+library(tidyverse)
+library(GGally)
+library(ggfortify)
+library(modelr)
+
+vg_sales <- read_csv("vg_sales.csv") %>%
+  select(-name, -developer, -publisher, -year_of_release, -...1) %>% 
+  filter(platform %in% c("Nintendo", "Sony Playstation", "PC", "Microsoft Xbox")) %>% 
+  drop_na(platform, genre) %>% 
+  mutate(rating = coalesce(rating, "Unknown"))
+  
+ggpairs(vg_sales)
+```
+
+```{r}
+alias(lm(global_sales ~ ., data = vg_sales))
+```
+```{r}
+n_data = nrow(vg_sales)
+test_index <- sample(1:n_data, size = n_data*0.1)
+sales_test <- slice(vg_sales, test_index)
+sales_train <- slice(vg_sales, -test_index)
+```
+
+```{r}
+ceiling <- lm(global_sales ~ ., data = sales_train)
+
+summary(ceiling)
+```
+
+```{r}
+mod1a <- lm(global_sales ~ na_sales, data = vg_sales)
+mod1b <- lm(global_sales ~ eu_sales, data = vg_sales)
+
+summary(mod1a)
+summary(mod1b)
+```
+
+```{r}
+autoplot(mod1a)
+```
+Pass
+
+```{r}
+mod2a <- lm(global_sales ~ na_sales + eu_sales, data = vg_sales)
+mod2b <- lm(global_sales ~ na_sales + genre, data = vg_sales)
+
+summary(mod2a)
+summary(mod2b)
+```
+
+```{r}
+autoplot(mod2a)
+```
+
+```{r}
+
+```
+
