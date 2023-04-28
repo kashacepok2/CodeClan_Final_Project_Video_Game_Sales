@@ -73,11 +73,6 @@ extra sales has more user scores
 extra_sales
 ```
 
-```{r}
-all_sales %>% 
-  filter(name == "Minecraft")
-```
-
 ### extra_sales may be more useful than our original dataset (all_sales)
 
 
