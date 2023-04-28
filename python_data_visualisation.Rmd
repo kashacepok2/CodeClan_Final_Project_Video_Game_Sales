@@ -25,6 +25,7 @@ plt.rcParams["font.size"] = 10
 sales_by_platform = (
   vg_sales
   .loc[vg_sales["platform"].isin(["Nintendo", "Microsoft Xbox", "Sony Playstation", "PC"])]
+  .loc[vg_sales["year_of_release"] > 1999]
   .groupby("platform")
   .agg({"global_sales":"mean"})
 )
@@ -32,6 +33,10 @@ sales_by_platform = (
 plt.figure(1)
 sns.barplot(data = sales_by_platform, x = sales_by_platform.index, y = "global_sales")
 plt.legend().remove()
+plt.xlabel("Platform")
+plt.ylabel("Average Global Sales (millions)")
+plt.title("Mean Average Sales of Games per platform")
+plt.show()
 
 ```
 
@@ -45,6 +50,9 @@ scores_by_platform = (
 
 plt.figure(2)
 sns.barplot(data = scores_by_platform, x = "platform", y = "score", hue = "critic_or_user")
+plt.xlabel("Platform")
+plt.ylabel("Score")
+plt.title("Average Critic and User Ratings per Platform")
 
 plt.show()
 ```
@@ -54,6 +62,7 @@ plt.close()
 
 sales_by_genre = (
   vg_sales
+  .loc[vg_sales["year_of_release"] > 1999]
   .groupby("genre")
   .agg({"global_sales":"mean"})
 )
@@ -61,6 +70,10 @@ sales_by_genre = (
 plt.figure(3)
 sns.barplot(data = sales_by_genre, x = sales_by_genre.index, y = "global_sales")
 plt.legend().remove()
+plt.xlabel("Genre")
+plt.ylabel("Average Global Sales (millions)")
+plt.title("Mean Average Sales of Games per Genre")
+plt.xticks(rotation = 20)
 
 plt.show()
 ```
@@ -84,6 +97,8 @@ plt.close()
 
 sales_by_maturity = (
   vg_sales
+  .loc[vg_sales["year_of_release"] > 1999]
+  .loc[vg_sales["rating"] != "RP"]
   .groupby("rating")
   .agg({"global_sales":"mean"})
 )
@@ -91,6 +106,9 @@ sales_by_maturity = (
 plt.figure(5)
 sns.barplot(data = sales_by_maturity, x = sales_by_maturity.index, y = "global_sales")
 plt.legend().remove()
+plt.xlabel("Maturity Rating")
+plt.ylabel("Average Global Sales (millions)")
+plt.title("Average Global Sales of Games per Maturity Rating")
 
 plt.show()
 ```
@@ -98,19 +116,26 @@ plt.show()
 ```{python}
 plt.close()
 
-sales_genre_year = (
-  vg_sales
-  .groupby(["year_of_release", "genre"])
-  .agg({"global_sales":"mean"})
-)
+year_sales = (
+  vg_sales[["genre", "year_of_release", "global_sales"]]
+  .groupby(["year_of_release"])
+  .agg({"global_sales":"sum"})
+  .reset_index()
+  )
+  
+year_sales_genre = (
+  vg_sales[["genre", "year_of_release", "global_sales"]]
+  .groupby(["genre", "year_of_release"])
+  .agg({"global_sales":"sum"})
+  .reset_index()
+  )
 
+prop_year_sales = year_sales_genre.merge(year_sales, how = "inner", on = "year_of_release")
+prop_year_sales.loc[:, "proportion_sales"] = prop_year_sales.global_sales_x / prop_year_sales.global_sales_y
+  
+  
 plt.figure(6)
-sns.lineplot(data = sales_genre_year, x = "year_of_release", y = "global_sales", hue = "genre")
-
+sns.histplot(prop_year_sales, x = "year_of_release", hue = "genre", weights = "proportion_sales", multiple = "stack", bins = 40)
 plt.show()
-```
-
-```{python}
-
 ```
 
