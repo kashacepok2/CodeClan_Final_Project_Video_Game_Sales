@@ -10,6 +10,7 @@ library(tidyverse)
 library(GGally)
 library(ggfortify)
 library(modelr)
+library(glmulti)
 
 vg_sales <- read_csv("vg_sales.csv") %>%
   select(-name, -developer, -publisher, -year_of_release, -...1) %>% 
@@ -19,6 +20,8 @@ vg_sales <- read_csv("vg_sales.csv") %>%
   
 ggpairs(vg_sales)
 ```
+
+# model 1: with sales variables
 
 ```{r}
 alias(lm(global_sales ~ ., data = vg_sales))
@@ -37,8 +40,19 @@ summary(ceiling)
 ```
 
 ```{r}
-mod1a <- lm(global_sales ~ na_sales, data = vg_sales)
-mod1b <- lm(global_sales ~ eu_sales, data = vg_sales)
+glmulti(global_sales ~ ., data = vg_sales, method = "h")
+```
+Best model: global_sales~1+other_sales:eu_sales+other_sales:jp_sales+rating:platform+rating:na_sales+rating:eu_sales+rating:jp_sales+rating:other_sales
+
+```{r}
+mod_best <- lm(global_sales~1+other_sales:eu_sales+other_sales:jp_sales+rating:platform+rating:na_sales+rating:eu_sales+rating:jp_sales+rating:other_sales, data = vg_sales)
+
+autoplot(mod_best)
+```
+
+```{r}
+mod1a <- lm(global_sales ~ na_sales, data = sales_train)
+mod1b <- lm(global_sales ~ eu_sales, data = sales_train)
 
 summary(mod1a)
 summary(mod1b)
@@ -50,8 +64,8 @@ autoplot(mod1a)
 Pass
 
 ```{r}
-mod2a <- lm(global_sales ~ na_sales + eu_sales, data = vg_sales)
-mod2b <- lm(global_sales ~ na_sales + genre, data = vg_sales)
+mod2a <- lm(global_sales ~ na_sales + eu_sales, data = sales_train)
+mod2b <- lm(global_sales ~ na_sales + genre, data = sales_train)
 
 summary(mod2a)
 summary(mod2b)
@@ -62,6 +76,52 @@ autoplot(mod2a)
 ```
 
 ```{r}
+mod3a <- lm(global_sales ~ na_sales + eu_sales + other_sales, data = sales_train)
+mod3b <- lm(global_sales ~ na_sales + eu_sales + jp_sales, data = sales_train)
 
+summary(mod3a)
+summary(mod3b)
 ```
 
+```{r}
+autoplot(mod3b)
+```
+
+```{r}
+mod4a <- lm(global_sales ~ na_sales + eu_sales + jp_sales + other_sales, data = sales_train)
+mod4b <- lm(global_sales ~ na_sales + eu_sales + jp_sales + platform, data = sales_train)
+
+summary(mod4a)
+summary(mod4b)
+```
+
+mod4b has a perfect r squared meaning it predicts with 100% accuracy, this makes sense as the different sales areas will always add up to global_sales
+
+```{r}
+mod_test <- lm(global_sales ~ na_sales + eu_sales + jp_sales + other_sales, data = sales_test)
+
+summary(mod_test)
+```
+r squared test = rsquared train: meaning the model is well fit
+
+# Model 2 - without sales
+
+```{r}
+vg_sales_trim <- vg_sales %>% 
+  select(-jp_sales, -other_sales, -eu_sales, -na_sales)
+
+n_data2 = nrow(vg_sales_trim)
+test_index2 <- sample(1:n_data2, size = n_data2*0.1)
+sales_test2 <- slice(vg_sales_trim, test_index2)
+sales_train2 <- slice(vg_sales_trim, -test_index2)
+```
+
+```{r}
+ceiling2 <- lm(global_sales ~ ., data = vg_sales_trim)
+
+summary(ceiling2)
+```
+
+r squared = 0.02: This model would not predict much of anything
+
+Due to the nature of the variables, this data is not fit for modelling. We do now know that the sales area have importance in the following order: NA, EU, JP, Other
