@@ -29,7 +29,8 @@ video_game_ratings <- video_game_sales %>%
     platform == "PC" ~ "PC"
   )) %>% 
   pivot_longer(cols = c("critic_score", "user_score"),
-               names_to = "critic_or_user", values_to = "score")
+               names_to = "critic_or_user", values_to = "score") %>% 
+  filter(is.na(genre) == FALSE | year_of_release < 2017)
 
 video_game_sales_clean <- video_game_sales %>% 
   select(-user_count, -user_score, -critic_score, -critic_count) %>% 
@@ -41,7 +42,8 @@ video_game_sales_clean <- video_game_sales %>%
     platform %in% sega ~ "Sega",
     platform %in% other ~ "Other",
     platform == "PC" ~ "PC"
-  )) 
+  )) %>% 
+  filter(is.na(genre) == FALSE | year_of_release < 2017) 
 
 write.csv(video_game_sales_clean, "vg_sales.csv")
 write.csv(video_game_ratings, "vg_ratings.csv")
