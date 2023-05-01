@@ -92,3 +92,10 @@ GGally::ggcorr(extra_sales)
 ```
 
 the correlation between sales and critic score is weak, therefore we will keep both in as metrics of success instead of using just one.
+
+```{r}
+all_sales %>% 
+  filter(year > 2016 & is.na(global_sales) == FALSE)
+```
+
+The original data has games after 2016, but the new data doesn't. We can join these!
