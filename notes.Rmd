@@ -64,6 +64,6 @@ video_game_sales_clean %>%
 
 ```{r}
 video_game_sales_clean %>% 
-  filter(year_of_release == 1993)
+  filter(year_of_release != 2020)
 ```
 
