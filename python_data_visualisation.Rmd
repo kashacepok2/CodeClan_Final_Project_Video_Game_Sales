@@ -18,9 +18,9 @@ vg_sales = pd.read_csv("vg_sales.csv")
 ```
 
 ```{python}
-plt.rcParams["figure.figsize"] = [5,3]
+plt.rcParams["figure.figsize"] = [7,5]
 plt.rcParams["figure.dpi"] = 120
-plt.rcParams["font.size"] = 10
+plt.rcParams["font.size"] = 9
 
 sales_by_platform = (
   vg_sales
@@ -135,7 +135,12 @@ prop_year_sales.loc[:, "proportion_sales"] = prop_year_sales.global_sales_x / pr
   
   
 plt.figure(6)
+ax = plt.figure(7).add_subplot(111)
 sns.histplot(prop_year_sales, x = "year_of_release", hue = "genre", weights = "proportion_sales", multiple = "stack", bins = 40)
+plt.xlabel("Year of Release")
+plt.ylabel("Proportion of Sales")
+plt.title("Proportion of Game Sales by Genre over Time")
+ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 plt.show()
 ```
 
