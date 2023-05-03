@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r}
@@ -15,12 +17,12 @@ import seaborn as sns
 
 vg_ratings = pd.read_csv("vg_ratings.csv")
 vg_sales = pd.read_csv("vg_sales.csv")
+
 ```
 
 ```{python}
-plt.rcParams["figure.figsize"] = [7,5]
-plt.rcParams["figure.dpi"] = 120
-plt.rcParams["font.size"] = 9
+plt.rcParams["figure.figsize"] = [10,6]
+plt.rcParams["figure.dpi"] = 100
 
 sales_by_platform = (
   vg_sales
@@ -32,6 +34,32 @@ sales_by_platform = (
 
 plt.figure(1)
 sns.barplot(data = sales_by_platform, x = sales_by_platform.index, y = "global_sales")
+plt.legend().remove()
+plt.xlabel("Platform", fontsize = 20)
+plt.ylabel("Average Global Sales (millions)", fontsize = 20)
+plt.title("Mean Average Sales of Games per platform", fontsize = 30)
+plt.xticks(fontsize = 14)
+plt.yticks(fontsize = 14)
+
+plt.show()
+
+```
+
+```{python}
+plt.rcParams["figure.figsize"] = [12,8]
+plt.rcParams["figure.dpi"] = 120
+
+sales_by_platform2 = (
+  vg_sales
+  .loc[vg_sales["platform"].isin(["Nintendo", "Microsoft Xbox", "Sony Playstation", "PC"])]
+  .loc[vg_sales["year_of_release"] > 1999]
+  .loc[vg_sales["developer"].isin(["Nintendo"]) == False]
+  .groupby("platform")
+  .agg({"global_sales":"mean"})
+)
+
+plt.figure(2)
+sns.barplot(data = sales_by_platform2, x = sales_by_platform2.index, y = "global_sales")
 plt.legend().remove()
 plt.xlabel("Platform")
 plt.ylabel("Average Global Sales (millions)")
@@ -48,7 +76,7 @@ scores_by_platform = (
   .loc[vg_ratings["platform"].isin(["Nintendo", "Microsoft Xbox", "Sony Playstation", "PC"])]
 )
 
-plt.figure(2)
+plt.figure(3)
 sns.barplot(data = scores_by_platform, x = "platform", y = "score", hue = "critic_or_user")
 plt.xlabel("Platform")
 plt.ylabel("Score")
@@ -60,6 +88,10 @@ plt.show()
 ```{python}
 plt.close()
 
+plt.rcParams["figure.figsize"] = [12,8]
+plt.rcParams["figure.dpi"] = 120
+plt.rcParams["font.size"] = 9
+
 sales_by_genre = (
   vg_sales
   .loc[vg_sales["year_of_release"] > 1999]
@@ -67,13 +99,14 @@ sales_by_genre = (
   .agg({"global_sales":"mean"})
 )
 
-plt.figure(3)
+plt.figure(4)
 sns.barplot(data = sales_by_genre, x = sales_by_genre.index, y = "global_sales")
 plt.legend().remove()
-plt.xlabel("Genre")
-plt.ylabel("Average Global Sales (millions)")
-plt.title("Mean Average Sales of Games per Genre")
-plt.xticks(rotation = 20)
+plt.xlabel("Genre", fontsize = 20)
+plt.ylabel("Average Global Sales (millions)", fontsize = 20)
+plt.title("Mean Average Sales of Games per Genre", fontsize = 30)
+plt.xticks(rotation = 30, fontsize = 12)
+plt.yticks(fontsize = 14)
 
 plt.show()
 ```
@@ -86,7 +119,7 @@ scores_by_genre = (
   .loc[vg_ratings["platform"].isin(["Nintendo", "Microsoft Xbox", "Sony Playstation", "PC"])]
 )
 
-plt.figure(4)
+plt.figure(5)
 sns.barplot(data = scores_by_genre, x = "genre", y = "score", hue = "critic_or_user")
 
 plt.show()
@@ -103,12 +136,14 @@ sales_by_maturity = (
   .agg({"global_sales":"mean"})
 )
 
-plt.figure(5)
+plt.figure(6)
 sns.barplot(data = sales_by_maturity, x = sales_by_maturity.index, y = "global_sales")
 plt.legend().remove()
-plt.xlabel("Maturity Rating")
-plt.ylabel("Average Global Sales (millions)")
-plt.title("Average Global Sales of Games per Maturity Rating")
+plt.xlabel("Maturity Rating", fontsize = 20)
+plt.ylabel("Average Global Sales (millions)", fontsize = 20)
+plt.title("Average Global Sales of Games per Maturity Rating", fontsize = 30)
+plt.xticks(fontsize = 14)
+plt.yticks(fontsize = 14)
 
 plt.show()
 ```
@@ -134,13 +169,64 @@ prop_year_sales = year_sales_genre.merge(year_sales, how = "inner", on = "year_o
 prop_year_sales.loc[:, "proportion_sales"] = prop_year_sales.global_sales_x / prop_year_sales.global_sales_y
   
   
-plt.figure(6)
-ax = plt.figure(7).add_subplot(111)
-sns.histplot(prop_year_sales, x = "year_of_release", hue = "genre", weights = "proportion_sales", multiple = "stack", bins = 40)
-plt.xlabel("Year of Release")
-plt.ylabel("Proportion of Sales")
-plt.title("Proportion of Game Sales by Genre over Time")
-ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+plt.figure(7)
+ax = plt.figure(8).add_subplot(111)
+sns.histplot(prop_year_sales, x = "year_of_release", hue = "genre", weights = "proportion_sales", multiple = "stack", bins = 39)
+plt.xlabel("Year of Release", fontsize = 20)
+plt.ylabel("Proportion of Sales", fontsize = 20)
+plt.title("Proportion of Game Sales by Genre over Time", fontsize = 30)
+sns.move_legend(ax, "upper left", bbox_to_anchor=(1, 1), fontsize = 14)
+plt.xticks(fontsize = 14)
+plt.yticks(fontsize = 14)
+plt.show()
+```
+
+
+```{python}
+plt.close()
+
+plt.figure(9)
+sns.scatterplot(data = vg_ratings, x = "score", y = "global_sales", hue = "critic_or_user")
+plt.ylim(0, 2)
+
+plt.show()
+```
+
+```{python}
+
+year_sales_genre2 = (
+    vg_sales[["genre", "year_of_release", "global_sales"]]
+    .groupby(["genre", "year_of_release"])
+    .agg({"global_sales": "sum"})
+    .reset_index()
+)
+
+year_sales2 = (
+    vg_sales[["year_of_release", "global_sales"]]
+    .groupby("year_of_release")
+    .agg({"global_sales": "sum"})
+    .reset_index()
+)
+
+prop_year_sales2 = year_sales_genre2.merge(year_sales2, how = "inner", on = "year_of_release")
+prop_year_sales2["proportion_sales"] = (
+    prop_year_sales2.global_sales_x / prop_year_sales2.global_sales_y
+)
+
+prop_year_sales2_pivot = prop_year_sales2.pivot_table(
+    index = "year_of_release", columns = "genre", values = "proportion_sales"
+).fillna(0)
+
+plt.figure()
+sns.set_theme()
+ax = plt.gca()
+prop_year_sales2_pivot.plot.area(ax = ax)
+plt.xlabel("Year of Release", fontsize = 20)
+plt.ylabel("Proportion of Sales", fontsize = 20)
+plt.title("Proportion of Game Sales by Genre over Time", fontsize = 30)
+plt.legend(loc = "upper left", bbox_to_anchor = (1, 1), fontsize = 14)
+plt.xticks(fontsize = 14)
+plt.yticks(fontsize = 14)
 plt.show()
 ```
 
